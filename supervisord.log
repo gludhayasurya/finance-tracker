@@ -1,0 +1,30 @@
+2025-04-10 13:20:00,188 CRIT Supervisor is running as root.  Privileges were not dropped because no user is specified in the config file.  If you intend to run as root, you can set user=root in the config file to avoid this message.
+2025-04-10 13:20:00,192 INFO supervisord started with pid 1
+2025-04-10 13:20:01,196 INFO spawned: 'apache2' with pid 7
+2025-04-10 13:20:01,199 INFO spawned: 'reverb' with pid 8
+2025-04-10 13:20:01,770 WARN exited: reverb (exit status 1; not expected)
+2025-04-10 13:20:02,772 INFO success: apache2 entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-04-10 13:20:02,773 INFO spawned: 'reverb' with pid 16
+2025-04-10 13:20:02,920 WARN exited: reverb (exit status 1; not expected)
+2025-04-10 13:20:04,923 INFO spawned: 'reverb' with pid 17
+2025-04-10 13:20:05,183 WARN exited: reverb (exit status 1; not expected)
+2025-04-10 13:20:08,187 INFO spawned: 'reverb' with pid 18
+2025-04-10 13:20:08,394 WARN exited: reverb (exit status 1; not expected)
+2025-04-10 13:20:09,396 INFO gave up: reverb entered FATAL state, too many start retries too quickly
+2025-04-10 13:20:30,842 CRIT Supervisor is running as root.  Privileges were not dropped because no user is specified in the config file.  If you intend to run as root, you can set user=root in the config file to avoid this message.
+2025-04-10 13:20:30,843 INFO supervisord started with pid 1
+2025-04-10 13:20:31,846 INFO spawned: 'apache2' with pid 7
+2025-04-10 13:20:31,847 INFO spawned: 'reverb' with pid 8
+2025-04-10 13:20:31,992 WARN exited: reverb (exit status 1; not expected)
+2025-04-10 13:20:32,994 INFO success: apache2 entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-04-10 13:20:33,001 INFO spawned: 'reverb' with pid 16
+2025-04-10 13:20:33,148 WARN exited: reverb (exit status 1; not expected)
+2025-04-10 13:20:35,153 INFO spawned: 'reverb' with pid 17
+2025-04-10 13:20:35,300 WARN exited: reverb (exit status 1; not expected)
+2025-04-10 13:20:38,586 INFO spawned: 'reverb' with pid 18
+2025-04-10 13:20:38,741 WARN exited: reverb (exit status 1; not expected)
+2025-04-10 13:20:39,743 INFO gave up: reverb entered FATAL state, too many start retries too quickly
+2025-04-10 14:14:15,117 INFO reaped unknown pid 79 (exit status 0)
+2025-04-10 14:15:01,113 INFO reaped unknown pid 173 (exit status 0)
+2025-04-10 14:15:37,162 INFO reaped unknown pid 205 (exit status 0)
+2025-04-10 14:16:03,208 INFO reaped unknown pid 229 (exit status 0)
