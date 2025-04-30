@@ -35,7 +35,7 @@ class TransactionController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request->all());
+        // dd($request->all());
         $request->validate([
             'title' => 'required|string|max:255',
             'amount' => 'required|numeric',
