@@ -335,55 +335,55 @@ return [
         //     'icon'  => 'fas fa-money-bill-wave',
         // ],
         ['text' => 'Dashboard', 'route' => 'dashboard', 'icon' => 'fas fa-chart-line'],
-        // ['text' => 'Banks', 'route' => 'banks.index', 'icon' => 'fas fa-chart-line'],
-        [
-            'text' => 'HDFC Bank',
-            'url' => '#',
-            'icon' => 'fas fa-fw fa-landmark',
-            'icon_color' => 'red',
-            'submenu' => [
-                [
-                    'text' => 'Transactions',
-                    'url' => 'transactions',
-                ],
-                [
-                    'text' => 'Reports',
-                    'url' => '#',
-                ],
-            ],
-        ],
-        [
-            'text' => 'ICICI Bank',
-            'url' => '#',
-            'icon' => 'fas fa-fw fa-landmark',
-            'icon_color' => 'orange',
-            'submenu' => [
-                [
-                    'text' => 'Transactions',
-                    'url' => 'transactions',
-                ],
-                [
-                    'text' => 'Reports',
-                    'url' => '#',
-                ],
-            ],
-        ],
-        [
-            'text' => 'Indian Bank',
-            'url' => '#',
-            'icon' => 'fas fa-fw fa-landmark',
-            'icon_color' => 'blue',
-            'submenu' => [
-                [
-                    'text' => 'Transactions',
-                    'url' => 'tr',
-                ],
-                [
-                    'text' => 'Reports',
-                    'url' => '#',
-                ],
-            ],
-        ],
+        ['text' => 'Banks', 'route' => 'banks.index', 'icon' => 'fas fa-chart-line'],
+        // [
+        //     'text' => 'HDFC Bank',
+        //     'url' => '#',
+        //     'icon' => 'fas fa-fw fa-landmark',
+        //     'icon_color' => 'red',
+        //     'submenu' => [
+        //         [
+        //             'text' => 'Transactions',
+        //             'url' => 'transactions',
+        //         ],
+        //         [
+        //             'text' => 'Reports',
+        //             'url' => '#',
+        //         ],
+        //     ],
+        // ],
+        // [
+        //     'text' => 'ICICI Bank',
+        //     'url' => '#',
+        //     'icon' => 'fas fa-fw fa-landmark',
+        //     'icon_color' => 'orange',
+        //     'submenu' => [
+        //         [
+        //             'text' => 'Transactions',
+        //             'url' => 'transactions',
+        //         ],
+        //         [
+        //             'text' => 'Reports',
+        //             'url' => '#',
+        //         ],
+        //     ],
+        // ],
+        // [
+        //     'text' => 'Indian Bank',
+        //     'url' => '#',
+        //     'icon' => 'fas fa-fw fa-landmark',
+        //     'icon_color' => 'blue',
+        //     'submenu' => [
+        //         [
+        //             'text' => 'Transactions',
+        //             'url' => 'tr',
+        //         ],
+        //         [
+        //             'text' => 'Reports',
+        //             'url' => '#',
+        //         ],
+        //     ],
+        // ],
         // [
         //     'text' => 'profile',
         //     'url' => 'admin/settings',
@@ -432,22 +432,22 @@ return [
         //         ],
         //     ],
         // ],
-        ['header' => 'labels'],
-        [
-            'text' => 'important',
-            'icon_color' => 'red',
-            'url' => '#',
-        ],
-        [
-            'text' => 'warning',
-            'icon_color' => 'yellow',
-            'url' => '#',
-        ],
-        [
-            'text' => 'information',
-            'icon_color' => 'cyan',
-            'url' => '#',
-        ],
+        // ['header' => 'labels'],
+        // [
+        //     'text' => 'important',
+        //     'icon_color' => 'red',
+        //     'url' => '#',
+        // ],
+        // [
+        //     'text' => 'warning',
+        //     'icon_color' => 'yellow',
+        //     'url' => '#',
+        // ],
+        // [
+        //     'text' => 'information',
+        //     'icon_color' => 'cyan',
+        //     'url' => '#',
+        // ],
     ],
 
     /*

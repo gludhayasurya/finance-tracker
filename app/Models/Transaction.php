@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -13,6 +14,7 @@ class Transaction extends Model
         'amount',
         'type',
         'date',
+        'bank_id',
     ];
 
     protected $casts = [
@@ -22,6 +24,17 @@ class Transaction extends Model
     public function bank()
     {
         return $this->belongsTo(Bank::class);
+    }
+
+    // Accessor to format the date as dd-mm-YYYY
+    public function getDateAttribute($value)
+    {
+        return Carbon::parse($value)->format('Y-m-d');
+    }
+
+    public function getDateForUiAttribute()
+    {
+        return Carbon::parse($this->attributes['date'])->format('d-m-Y');
     }
 
 }

@@ -7,13 +7,14 @@
 @stop
 
 @section('content')
+
     <!-- Add Transaction Button -->
     <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#createTransactionModal">
         Add Transaction
     </button>
 
     <!-- Transactions Table -->
-    <table id="mydataTable" class="table table-bordered table-striped">
+    <table class="table table-bordered">
         <thead>
             <tr>
                 <th>Date</th>
@@ -35,8 +36,15 @@
                     </td>
                     <td>₹{{ number_format($tx->amount, 2) }}</td>
                     <td>
-                        <button class="btn btn-sm btn-warning" data-toggle="modal" data-target="#editTransactionModal{{ $tx->id }}">Edit</button>
-                        <button class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteTransactionModal{{ $tx->id }}">Delete</button>
+                        <!-- Edit Button -->
+                        <button class="btn btn-sm btn-warning" data-toggle="modal" data-target="#editTransactionModal{{ $tx->id }}">
+                            Edit
+                        </button>
+
+                        <!-- Delete Button -->
+                        <button class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteTransactionModal{{ $tx->id }}">
+                            Delete
+                        </button>
                     </td>
                 </tr>
 
@@ -49,7 +57,7 @@
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <h5 class="modal-title">Edit Transaction</h5>
-                                    <button type="button" class="close" data-dismiss="modal">×</button>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
                                 </div>
                                 <div class="modal-body">
                                     <input type="hidden" name="bank_id" value="{{ $tx->bank_id }}">
@@ -91,7 +99,7 @@
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <h5 class="modal-title">Delete Transaction</h5>
-                                    <button type="button" class="close" data-dismiss="modal">×</button>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
                                 </div>
                                 <div class="modal-body">
                                     Are you sure you want to delete <strong>{{ $tx->title }}</strong>?
@@ -108,6 +116,9 @@
         </tbody>
     </table>
 
+    <!-- Pagination -->
+    {{ $transactions->links() }}
+
     <!-- Create Modal -->
     <div class="modal fade" id="createTransactionModal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
@@ -117,7 +128,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Add Transaction</h5>
-                        <button type="button" class="close" data-dismiss="modal">×</button>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
                     <div class="modal-body">
                         <div class="form-group">
@@ -148,6 +159,5 @@
             </form>
         </div>
     </div>
-@stop
 
-@include('partials.datatables')
+@stop

@@ -17,7 +17,7 @@ class TransactionController extends Controller
 
         $transactions = Transaction::where('bank_id', $bankId)
             ->latest()
-            ->paginate(10);
+            ->get();
 
         return view('transactions.index', compact('transactions', 'bank'));
     }
@@ -45,7 +45,7 @@ class TransactionController extends Controller
 
         // dd($request->all());
 
-        Transaction::create($request->all());
+        Transaction::create($request->except('token'));
 
         return redirect()->route('transactions.index', ['bank_id' => $request->bank_id])
             ->with('success', 'Transaction created successfully.');
@@ -72,7 +72,18 @@ class TransactionController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'amount' => 'required|numeric',
+            // 'type' => 'required|in:credit,debit',
+            'date' => 'required|date',
+        ]);
+
+        $transaction = Transaction::findOrFail($id);
+        $transaction->update($request->except('token'));
+
+        return redirect()->route('transactions.index', ['bank_id' => $request->bank_id])
+            ->with('success', 'Transaction updated successfully.');
     }
 
     /**
@@ -80,6 +91,10 @@ class TransactionController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $transaction = Transaction::findOrFail($id);
+        $transaction->delete();
+
+        return redirect()->route('transactions.index', ['bank_id' => $transaction->bank_id])
+            ->with('success', 'Transaction deleted successfully.');
     }
 }

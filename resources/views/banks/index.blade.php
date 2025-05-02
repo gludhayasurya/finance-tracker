@@ -17,8 +17,11 @@
     Add Bank
 </button>
 
+<div id="notification">
+
+
 <!-- Banks Table -->
-<table class="table table-bordered">
+<table id="mydataTable" class="table table-bordered table-striped">
     <thead>
         <tr>
             <th>Name</th>
@@ -139,3 +142,23 @@
 </div>
 
 @endsection
+
+@section('js')
+<script type="module">
+    // Get the authenticated user's ID (passed from the backend)
+    const userId = {{ auth()->id() }};
+
+    console.log('bbuser-id: ', userId);
+
+    // Listen to the private channel for the authenticated user
+    window.Echo.private(`user.${userId}`)
+        .listen('.create', (data) => {
+            console.log('Notification received: ', data);
+            var d1 = document.getElementById('notification');
+            d1.insertAdjacentHTML('beforeend', '<div class="alert alert-success alert-dismissible fade show"><span><i class="fa fa-circle-check"></i>  '+data.message+'</span></div>');
+        });
+</script>
+
+@endsection
+
+@include('partials.datatables')

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\PostCreated;
 use App\Models\Bank;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 
 class BankController extends Controller
@@ -27,6 +29,10 @@ class BankController extends Controller
         ]);
 
         Bank::create($request->all());
+
+        $post = Transaction::latest()->first();
+
+        event(new PostCreated($post, 1));
 
         return redirect()->route('banks.index')->with('success', 'Bank created successfully.');
     }
