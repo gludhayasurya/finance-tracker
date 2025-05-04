@@ -26,13 +26,17 @@ class BankController extends Controller
             'name' => 'required|string|max:255',
             'address' => 'nullable|string|max:255',
             'initial_balance' => 'required|numeric|min:0',
+            'current_balance' => 'required|numeric|min:0',
+            'fa_icon' => 'required|string|max:255',
+            'icon_color' => 'required|string|max:255',
+
         ]);
 
         Bank::create($request->all());
 
         $post = Transaction::latest()->first();
 
-        event(new PostCreated($post, 1));
+        // event(new PostCreated($post, 1));
 
         return redirect()->route('banks.index')->with('success', 'Bank created successfully.');
     }
@@ -48,6 +52,9 @@ class BankController extends Controller
             'name' => 'required|string|max:255',
             'address' => 'nullable|string|max:255',
             'initial_balance' => 'required|numeric|min:0',
+            'current_balance' => 'required|numeric|min:0',
+            'fa_icon' => 'required|string|max:255',
+            'icon_color' => 'required|string|max:255',
         ]);
 
         $bank->update($request->all());

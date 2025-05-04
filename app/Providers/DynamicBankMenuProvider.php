@@ -34,8 +34,8 @@ class DynamicBankMenuProvider extends ServiceProvider
                 foreach ($banks as $bank) {
                     $event->menu->add([
                         'text' => strtoupper($bank->name) . ' Bank',
-                        'icon' => 'fas fa-fw fa-landmark',
-                        'icon_color' => 'info',
+                        'icon' => $bank->fa_icon ?? 'fas fa-fw fa-landmark', // Use dynamic fa_icon or fallback
+                        'icon_color' => $bank->icon_color ?? 'info', // Use dynamic icon_color or fallback
                         'submenu' => [
                             [
                                 'text' => 'Transactions',

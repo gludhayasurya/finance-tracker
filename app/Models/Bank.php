@@ -10,6 +10,9 @@ class Bank extends Model
         'name',
         'address',
         'initial_balance',
+        'current_balance',
+        'fa_icon',
+        'icon_color',
     ];
 
     public function transactions()

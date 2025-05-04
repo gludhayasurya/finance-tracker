@@ -27,6 +27,9 @@
             <th>Name</th>
             <th>Address</th>
             <th>Initial Balance</th>
+            <th>Current Balance</th>
+            <th>Icon</th>
+            <th>Icon Color</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -36,6 +39,9 @@
             <td>{{ $bank->name }}</td>
             <td>{{ $bank->address }}</td>
             <td>₹{{ number_format($bank->initial_balance, 2) }}</td>
+            <td>₹{{ number_format($bank->current_balance, 2) }}</td>
+            <td><i class="{{ $bank->fa_icon }}"></i></td>
+            <td>{{ $bank->icon_color }}</td>
             <td>
                 <!-- Edit Button -->
                 <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#editBankModal{{ $bank->id }}">
@@ -57,7 +63,7 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="editBankLabel{{ $bank->id }}">Edit Bank</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
@@ -72,10 +78,22 @@
                                 <label>Initial Balance</label>
                                 <input type="number" name="initial_balance" value="{{ $bank->initial_balance }}" class="form-control" step="0.01" required>
                             </div>
+                            <div class="mb-3">
+                                <label>Current Balance</label>
+                                <input type="number" name="current_balance" value="{{ $bank->current_balance }}" class="form-control" step="0.01" required>
+                            </div>
+                            <div class="mb-3">
+                                <label>Font Awesome Icon</label>
+                                <input type="text" name="fa_icon" value="{{ $bank->fa_icon }}" class="form-control" placeholder="e.g., fa fa-bank">
+                            </div>
+                            <div class="mb-3">
+                                <label>Icon Color</label>
+                                <input type="text" name="icon_color" value="{{ $bank->icon_color }}" class="form-control">
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button class="btn btn-primary" type="submit">Update</button>
-                            <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+                            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
                         </div>
                     </div>
                 </form>
@@ -116,7 +134,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="addBankLabel">Add New Bank</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
@@ -131,10 +149,22 @@
                         <label>Initial Balance</label>
                         <input type="number" name="initial_balance" step="0.01" class="form-control" value="0.00" required>
                     </div>
+                    <div class="mb-3">
+                        <label>Current Balance</label>
+                        <input type="number" name="current_balance" step="0.01" class="form-control" value="0.00" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Font Awesome Icon</label>
+                        <input type="text" name="fa_icon" class="form-control" placeholder="e.g., fa fa-bank">
+                    </div>
+                    <div class="mb-3">
+                        <label>Icon Color</label>
+                        <input type="text" name="icon_color" class="form-control">
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-success" type="submit">Add</button>
-                    <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </form>

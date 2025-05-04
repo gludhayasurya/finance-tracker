@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'title' => 'AdminLTE 3',
+    'title' => 'Finance',
     'title_prefix' => '',
     'title_postfix' => '',
 
@@ -335,7 +335,7 @@ return [
         //     'icon'  => 'fas fa-money-bill-wave',
         // ],
         ['text' => 'Dashboard', 'route' => 'dashboard', 'icon' => 'fas fa-chart-line'],
-        ['text' => 'Banks', 'route' => 'banks.index', 'icon' => 'fas fa-chart-line'],
+        ['text' => 'Banks', 'route' => 'banks.index', 'icon' => 'fas fa-solid fa-piggy-bank', 'icon_color' => 'pink'], 
         // [
         //     'text' => 'HDFC Bank',
         //     'url' => '#',
