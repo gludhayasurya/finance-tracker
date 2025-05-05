@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\TransactionController;
 
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TestMail;
+
 Route::get('/', function () {
     return view('auth.login');
 });
@@ -37,4 +40,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/transactions/{transaction}/edit', [TransactionController::class, 'edit'])->name('transactions.edit');
     Route::put('/transactions/{transaction}', [TransactionController::class, 'update'])->name('transactions.update');
     Route::delete('/transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
+});
+
+
+
+
+Route::get('/send-test-mail', function () {
+    $details = [
+        'title' => 'Mail from Laravel',
+        'body' => 'This is a test email sent using Gmail SMTP in Laravel 12.'
+    ];
+
+    Mail::to('udhayakumar.g@sq1.security')->send(new TestMail($details));
+
+    return 'Email sent successfully!';
 });

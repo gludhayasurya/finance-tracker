@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\BaseModel;
 
-class Bank extends Model
+class Bank extends BaseModel
 {
     protected $fillable = [
         'name',
@@ -19,5 +19,12 @@ class Bank extends Model
     {
         return $this->hasMany(Transaction::class);
     }
-    
+
+    // public function transformAudit(array $data): array
+    // {
+    //     $data['new_values']['location_name'] = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+    //     $data['old_values']['location_name'] = "gggggggggggggggggggggggggggg";
+
+    //     return $data;
+    // }
 }

@@ -1,5 +1,7 @@
 @extends('adminlte::page')
 
+@vite(['resources/sass/app.scss', 'resources/js/app.js'])
+
 @section('title', 'Banks')
 @section('content_header')
     <h1>Manage Banks</h1>
@@ -181,9 +183,9 @@
     console.log('bbuser-id: ', userId);
 
     // Listen to the private channel for the authenticated user
-    window.Echo.private(`user.${userId}`)
+    window.Echo.channel('posts')
         .listen('.create', (data) => {
-            console.log('Notification received: ', data);
+            console.log('Notification receivedhaha: ', data);
             var d1 = document.getElementById('notification');
             d1.insertAdjacentHTML('beforeend', '<div class="alert alert-success alert-dismissible fade show"><span><i class="fa fa-circle-check"></i>  '+data.message+'</span></div>');
         });

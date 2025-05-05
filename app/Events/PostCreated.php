@@ -40,8 +40,8 @@ class PostCreated implements ShouldBroadcastNow
     public function broadcastOn()
     {
         // If you want to broadcast to a specific user, use the PrivateChannel
-        return new PrivateChannel('user.' . $this->userId);
-        // return new Channel('posts');
+        // return new PrivateChannel('user.' . $this->userId);
+        return new Channel('posts');
     }
 
     /**
@@ -52,7 +52,7 @@ class PostCreated implements ShouldBroadcastNow
     public function broadcastWith()
     {
         return [
-            'message' => 'A new post with title  '. $this->post->title  . ' with content '. $this->post->content .' has been created ',
+            'message' => 'A new post with title  '. $this->post->title  . ' with content '. $this->post->amount .' has been created ',
             // 'message' => '<b style="color:blue;">'. 'Event '.$this->post->event_loop_count .' . ' .'</b>'. ' A new post created with title  <b style="color:red;">'. $this->post->title .'</b> '.' for the USER ID '. '<b>' . $this->userId .'</b>',
         ];
     }
