@@ -63,8 +63,8 @@ return [
     |
     */
 
-    'logo' => '<b>Admin</b>LTE',
-    'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
+    'logo' => '<b>Finance</b>',
+    'logo_img' => 'vendor/adminlte/dist/img/growth.gif',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
     'logo_img_xl_class' => 'brand-image-xs',
@@ -335,7 +335,8 @@ return [
         //     'icon'  => 'fas fa-money-bill-wave',
         // ],
         ['text' => 'Dashboard', 'route' => 'dashboard', 'icon' => 'fas fa-chart-line'],
-        ['text' => 'Banks', 'route' => 'banks.index', 'icon' => 'fas fa-solid fa-piggy-bank', 'icon_color' => 'pink'], 
+        ['text' => 'Reminders', 'route' => 'reminders.index', 'icon' => 'fas fa-solid fa-calendar-check'],
+        ['text' => 'Banks', 'route' => 'banks.index', 'icon' => 'fas fa-solid fa-piggy-bank', 'icon_color' => 'pink'],
         // [
         //     'text' => 'HDFC Bank',
         //     'url' => '#',

@@ -5,7 +5,7 @@ use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\TransactionController;
-
+use App\Http\Controllers\ImportController;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\TestMail;
 
@@ -40,9 +40,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/transactions/{transaction}/edit', [TransactionController::class, 'edit'])->name('transactions.edit');
     Route::put('/transactions/{transaction}', [TransactionController::class, 'update'])->name('transactions.update');
     Route::delete('/transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
+
+
+    Route::get('/import-form/{bank_id}', [ImportController::class, 'importForm'])->name('transactions.import');
+    Route::post('/import', [ImportController::class, 'import'])->name('import');
+
+
 });
 
 
+Route::resource('reminders', \App\Http\Controllers\ReminderController::class)->except(['create', 'edit', 'show']);
 
 
 Route::get('/send-test-mail', function () {

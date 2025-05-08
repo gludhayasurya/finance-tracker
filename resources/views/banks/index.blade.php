@@ -9,11 +9,6 @@
 
 @section('content')
 
-<!-- Success Message -->
-@if(session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
-@endif
-
 <!-- Add Bank Button -->
 <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#addBankModal">
     Add Bank

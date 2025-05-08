@@ -45,6 +45,10 @@ class DynamicBankMenuProvider extends ServiceProvider
                                 'text' => 'Reports',
                                 'url' => '#', // Placeholder for reports URL
                             ],
+                            [
+                                'text' => 'Import',
+                                'url' => route('transactions.import', ['bank_id' => $bank->id]),
+                            ],
                         ],
                     ]);
                 }

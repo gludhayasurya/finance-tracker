@@ -48,7 +48,10 @@ class TransactionController extends Controller
         Transaction::create($request->except('token'));
 
         return redirect()->route('transactions.index', ['bank_id' => $request->bank_id])
-            ->with('success', 'Transaction created successfully.');
+        ->with('toast', [
+            'type' => 'success',
+            'message' => 'Transaction created successfully.'
+        ]);
     }
 
     /**
@@ -83,7 +86,10 @@ class TransactionController extends Controller
         $transaction->update($request->except('token'));
 
         return redirect()->route('transactions.index', ['bank_id' => $request->bank_id])
-            ->with('success', 'Transaction updated successfully.');
+        ->with('toast', [
+            'type' => 'success',
+            'message' => 'Transaction updated successfully.'
+        ]);
     }
 
     /**
@@ -95,6 +101,9 @@ class TransactionController extends Controller
         $transaction->delete();
 
         return redirect()->route('transactions.index', ['bank_id' => $transaction->bank_id])
-            ->with('success', 'Transaction deleted successfully.');
+            ->with('toast', [
+                'type' => 'success',
+                'message' => 'Transaction deleted successfully.'
+            ]);
     }
 }

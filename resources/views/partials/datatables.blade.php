@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap4.min.css">
 @stop
 
-@section('js')
+@push('js')
 
 <!-- DataTables JS -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -24,8 +24,18 @@
 
     <script>
         $(document).ready(function() {
-            alert("1")
-            showToast('success', 'hihi');
+
+            @if(session('toast'))
+
+            const toastType = "{{ session('toast.type') }}";
+            const toastMessage = "{{ session('toast.message') }}";
+            showToast(toastType, toastMessage);
+
+            @endif
+            // alert("1")
+            // showToast('success', 'hihi');
+
+
 
             $('#mydataTable').DataTable({
                 dom: 'Bfrtip',
@@ -47,4 +57,4 @@
         }
 
     </script>
-@stop
+@endpush

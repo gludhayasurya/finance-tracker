@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Transaction extends BaseModel
 {
     use HasFactory;
+    protected $table = 'daily_manual_transactions';
     protected $fillable = [
         'title',
         'amount',
@@ -27,7 +28,6 @@ class Transaction extends BaseModel
         return $this->belongsTo(Bank::class);
     }
 
-    // Accessor to format the date as dd-mm-YYYY
     public function getDateAttribute($value)
     {
         return Carbon::parse($value)->format('Y-m-d');

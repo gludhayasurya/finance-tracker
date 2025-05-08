@@ -12,7 +12,7 @@ class BankController extends Controller
 {
     public function index()
     {
-        $banks = Bank::latest()->paginate(10);
+        $banks = Bank::get();
         return view('banks.index', compact('banks'));
     }
 
@@ -39,7 +39,10 @@ class BankController extends Controller
 
         // event(new PostCreated($post, 1));
 
-        return redirect()->route('banks.index')->with('success', 'Bank created successfully.');
+        return redirect()->route('banks.index')->with('toast', [
+            'type' => 'success',
+            'message' => 'Bank created successfully.'
+        ]);
     }
 
     public function edit(Bank $bank)
@@ -60,12 +63,18 @@ class BankController extends Controller
 
         $bank->update($request->all());
 
-        return redirect()->route('banks.index')->with('success', 'Bank updated successfully.');
+        return redirect()->route('banks.index')->with('toast', [
+            'type' => 'success',
+            'message' => 'Bank updated successfully.'
+        ]);
     }
 
     public function destroy(Bank $bank)
     {
         $bank->delete();
-        return redirect()->route('banks.index')->with('success', 'Bank deleted successfully.');
+        return redirect()->route('banks.index')->with('toast', [
+            'type' => 'success',
+            'message' => 'Bank deleted successfully.'
+        ]);
     }
 }
