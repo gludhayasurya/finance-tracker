@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BankController;
+use App\Http\Controllers\BankStatementController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
@@ -44,6 +45,11 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/import-form/{bank_id}', [ImportController::class, 'importForm'])->name('transactions.import');
     Route::post('/import', [ImportController::class, 'import'])->name('import');
+
+
+    Route::get('/upload-bank-statement', [BankStatementController::class, 'uploadForm'])->name('bank.upload.form');
+    Route::post('/parse-bank-statement', [BankStatementController::class, 'parseAndStore'])->name('bank.parse.store');
+
 
 
 });
