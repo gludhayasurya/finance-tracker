@@ -13,6 +13,11 @@
     Add Reminder
 </button>
 
+@if($reminders->isEmpty())
+        <div class="alert alert-info text-center">
+            No reminders found.
+        </div>
+    @else
 <!-- Reminders Table -->
 <table class="table table-bordered table-striped">
     <thead>
@@ -24,6 +29,7 @@
         </tr>
     </thead>
     <tbody>
+
         @foreach($reminders as $reminder)
         <tr>
             <td>{{ $reminder->date }}</td>
@@ -98,6 +104,7 @@
             </div>
         </div>
         @endforeach
+        @endif
     </tbody>
 </table>
 
@@ -114,7 +121,7 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label>Date</label>
-                        <input type="datetime-local" name="date" class="form-control" value="{{ \Carbon\Carbon::parse($reminder->date)->format('Y-m-d\TH:i') }}" required>
+                        <input type="datetime-local" name="date" class="form-control"  required>
 
                     </div>
                     <div class="mb-3">

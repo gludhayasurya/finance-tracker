@@ -2,6 +2,8 @@
 
 @section('title', 'Dashboard')
 
+
+
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
         <h1>Finance Dashboard</h1>
@@ -85,3 +87,5 @@
 .card h4 { font-size: 1.4rem; font-weight: bold; }
 </style>
 @stop
+
+

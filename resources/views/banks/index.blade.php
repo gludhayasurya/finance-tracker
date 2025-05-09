@@ -1,13 +1,6 @@
-@extends('adminlte::page')
 
-@vite(['resources/sass/app.scss', 'resources/js/app.js'])
+<x-layouts.main :title="'Banks'" :contentHeader="'Manage Banks'">
 
-@section('title', 'Banks')
-@section('content_header')
-    <h1>Manage Banks</h1>
-@stop
-
-@section('content')
 
 <!-- Add Bank Button -->
 <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#addBankModal">
@@ -168,9 +161,7 @@
     </div>
 </div>
 
-@endsection
-
-@section('js')
+@push('custom-js')
 <script type="module">
     // Get the authenticated user's ID (passed from the backend)
     const userId = {{ auth()->id() }};
@@ -185,7 +176,6 @@
             d1.insertAdjacentHTML('beforeend', '<div class="alert alert-success alert-dismissible fade show"><span><i class="fa fa-circle-check"></i>  '+data.message+'</span></div>');
         });
 </script>
+@endpush
 
-@endsection
-
-@include('partials.datatables')
+</x-layouts.main>

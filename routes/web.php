@@ -42,11 +42,6 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/transactions/{transaction}', [TransactionController::class, 'update'])->name('transactions.update');
     Route::delete('/transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
 
-
-    Route::get('/import-form/{bank_id}', [ImportController::class, 'importForm'])->name('transactions.import');
-    Route::post('/import', [ImportController::class, 'import'])->name('import');
-
-
     Route::get('/upload-bank-statement', [BankStatementController::class, 'uploadForm'])->name('bank.upload.form');
     Route::post('/parse-bank-statement', [BankStatementController::class, 'parseAndStore'])->name('bank.parse.store');
 

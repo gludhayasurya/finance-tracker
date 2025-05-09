@@ -24,34 +24,30 @@ class DynamicBankMenuProvider extends ServiceProvider
     public function boot()
     {
         View::composer('*', function ($view) {
-                $view->with('sidebarBanks', Bank::all());
-            });
+            $view->with('sidebarBanks', Bank::all());
+        });
 
-            Event::listen(BuildingMenu::class, function (BuildingMenu $event) {
-                $banks = Bank::all();
+        Event::listen(BuildingMenu::class, function (BuildingMenu $event) {
+            $banks = Bank::all();
 
 
-                foreach ($banks as $bank) {
-                    $event->menu->add([
-                        'text' => strtoupper($bank->name) . ' Bank',
-                        'icon' => $bank->fa_icon ?? 'fas fa-fw fa-landmark', // Use dynamic fa_icon or fallback
-                        'icon_color' => $bank->icon_color ?? 'info', // Use dynamic icon_color or fallback
-                        'submenu' => [
-                            [
-                                'text' => 'Transactions',
-                                'url' => route('transactions.index', ['bank_id' => $bank->id]),
-                            ],
-                            [
-                                'text' => 'Reports',
-                                'url' => '#', // Placeholder for reports URL
-                            ],
-                            [
-                                'text' => 'Import',
-                                'url' => route('transactions.import', ['bank_id' => $bank->id]),
-                            ],
+            foreach ($banks as $bank) {
+                $event->menu->add([
+                    'text' => strtoupper($bank->name) . ' Bank',
+                    'icon' => $bank->fa_icon ?? 'fas fa-fw fa-landmark', // Use dynamic fa_icon or fallback
+                    'icon_color' => $bank->icon_color ?? 'info', // Use dynamic icon_color or fallback
+                    'submenu' => [
+                        [
+                            'text' => 'Transactions',
+                            'url' => route('transactions.index', ['bank_id' => $bank->id]),
                         ],
-                    ]);
-                }
-            });
+                        [
+                            'text' => 'Reports',
+                            'url' => '#', // Placeholder for reports URL
+                        ],
+                    ],
+                ]);
+            }
+        });
     }
 }
