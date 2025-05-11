@@ -1,12 +1,5 @@
-@extends('adminlte::page')
+<x-layouts.main :title="'Transactions'" :contentHeader="'Transactions for ' . $bank->name">
 
-@section('title', 'Transactions')
-
-@section('content_header')
-    <h1>Transactions for {{ $bank->name }}</h1>
-@stop
-
-@section('content')
 
     {{-- Add Button --}}
     <div class="d-flex justify-content-start mb-3">
@@ -155,7 +148,6 @@
             </form>
         </div>
     </div>
-@stop
+    
+ </x-layouts.main>
 
-{{-- Optional: include this if you use DataTables --}}
-@include('partials.datatables')

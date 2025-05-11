@@ -1,12 +1,5 @@
-@extends('adminlte::page')
+<x-layouts.main :title="'Reminders'" :contentHeader="'Manage Reminders'">
 
-@section('title', 'Reminders')
-
-@section('content_header')
-    <h1>Manage Reminders</h1>
-@stop
-
-@section('content')
 
 <!-- Add Reminder Button -->
 <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#addReminderModal">
@@ -19,7 +12,7 @@
         </div>
     @else
 <!-- Reminders Table -->
-<table class="table table-bordered table-striped">
+<table id="mydataTable" class="table table-bordered table-striped">
     <thead>
         <tr>
             <th>Date</th>
@@ -142,6 +135,5 @@
     </div>
 </div>
 
-@stop
+</x-layouts.main>
 
-@include('partials.datatables')

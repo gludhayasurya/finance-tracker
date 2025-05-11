@@ -1,11 +1,4 @@
-{{-- resources/views/upload.blade.php --}}
-<x-layouts.main :title="'Upload Bank Statement'" :contentHeader="'Upload Bank Statement PDF gfgf'">
-
-    @if(session('success'))
-        <x-adminlte-alert theme="success" title="Success">
-            {{ session('success') }}
-        </x-adminlte-alert>
-    @endif
+<x-layouts.main :title="'Upload Bank Statement'" :contentHeader="'Upload Bank Statement PDF'">
 
     @if ($errors->any())
         <x-adminlte-alert theme="danger" title="Upload Error">
@@ -31,7 +24,6 @@
         <x-adminlte-button type="submit" label="Upload & Parse" theme="primary" icon="fas fa-upload" class="mt-3"/>
     </form>
 
-    {{-- Script to display selected file name --}}
     @push('custom-js')
     <script>
         document.addEventListener('DOMContentLoaded', function () {

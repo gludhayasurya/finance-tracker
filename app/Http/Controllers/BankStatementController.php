@@ -7,7 +7,7 @@ use App\Models\Statement;
 use Smalot\PdfParser\Parser;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class BankStatementController extends Controller
 {
@@ -21,6 +21,8 @@ class BankStatementController extends Controller
         $request->validate([
             'statement' => 'required|mimes:pdf|max:5120',
         ]);
+
+        DB::enableQueryLog(); // ✅ Enable SQL logging
 
         $pdfPath = $request->file('statement')->getPathname();
         $parser = new Parser();
@@ -55,11 +57,7 @@ class BankStatementController extends Controller
                 }
                 $current = ['raw' => $line];
             } else {
-                if (!isset($current['raw'])) {
-                    $current['raw'] = $line;
-                } else {
-                    $current['raw'] .= ' ' . $line;
-                }
+                $current['raw'] = isset($current['raw']) ? $current['raw'] . ' ' . $line : $line;
             }
         }
 
@@ -71,35 +69,90 @@ class BankStatementController extends Controller
 
         foreach ($transactions as $i => $item) {
             $rawLine = $item['raw'];
-            Log::channel('query_log')->info("Processing Transaction [$i]: " . $rawLine);
-
-            // Support both tabs and multiple spaces
-            $fields = preg_split('/\t+|\s{2,}/', $rawLine);
-            Log::channel('query_log')->info("Split Fields [$i]: " . json_encode($fields));
-
-            $data = [];
-
+            Log::channel('query_log')->info("Processing Transaction [$i]: $rawLine");
+        
             try {
-                if (isset($fields[0]) && preg_match('/^\d{2}-\d{2}-\d{4}$/', $fields[0])) {
-                    $data['date'] = Carbon::createFromFormat('d-m-Y', $fields[0]);
+                // Initialize variables
+                $date = null;
+                $mode = null;
+                $particulars = null;
+                $deposit = null;
+                $withdrawal = null;
+                $balance = null;
+        
+                // Step 1: Extract the date (dd-mm-yyyy) from the start of the line
+                if (preg_match('/^(\d{2}-\d{2}-\d{4})/', $rawLine, $dateMatch)) {
+                    $date = Carbon::createFromFormat('d-m-Y', $dateMatch[1]);
+                    // Remove the date from the raw line
+                    $rawLine = trim(substr($rawLine, strlen($dateMatch[1])));
                 }
-
-                $data['mode'] = $fields[1] ?? null;
-                $data['particulars'] = $fields[2] ?? null;
-
-                // Conditionally assign only if numeric
-                $data['deposit'] = isset($fields[3]) && is_numeric(str_replace(',', '', $fields[3])) ? str_replace(',', '', $fields[3]) : null;
-                $data['withdrawal'] = isset($fields[4]) && is_numeric(str_replace(',', '', $fields[4])) ? str_replace(',', '', $fields[4]) : null;
-                $data['balance'] = isset($fields[5]) && is_numeric(str_replace(',', '', $fields[5])) ? str_replace(',', '', $fields[5]) : null;
-
+        
+                // Step 2: Extract the amounts (deposit, withdrawal, balance) from the end
+                // Look for the last two or three numeric values (e.g., 92.00 5,661.09)
+                $amounts = [];
+                if (preg_match_all('/\d{1,3}(?:,\d{3})*\.\d{2}/', $rawLine, $amountMatches)) {
+                    $amounts = $amountMatches[0];
+                    // Remove the amounts from the raw line
+                    foreach ($amounts as $amount) {
+                        $rawLine = trim(str_replace($amount, '', $rawLine));
+                    }
+                }
+        
+                // Assign amounts (from right to left: balance, withdrawal, deposit)
+                if (count($amounts) > 0) {
+                    $balance = $this->parseAmount(array_pop($amounts));
+                }
+                if (count($amounts) > 0) {
+                    $withdrawal = $this->parseAmount(array_pop($amounts));
+                }
+                if (count($amounts) > 0) {
+                    $deposit = $this->parseAmount(array_pop($amounts));
+                }
+        
+                // Step 3: Split the remaining part into mode and particulars
+                $remainingFields = preg_split('/\s{2,}/', $rawLine);
+                if (count($remainingFields) >= 2) {
+                    $mode = $remainingFields[0];
+                    $particulars = implode(' ', array_slice($remainingFields, 1));
+                } else {
+                    $particulars = $rawLine;
+                }
+        
+                // Create data for insertion into the database
+                $data = [
+                    'date'        => $date,
+                    'mode'        => $mode,
+                    'particulars' => $particulars,
+                    'deposit'     => $deposit,
+                    'withdrawal'  => $withdrawal,
+                    'balance'     => $balance,
+                ];
+        
                 Statement::create($data);
-
                 Log::channel('query_log')->info("✅ DB Inserted [$i]: " . json_encode($data));
             } catch (\Exception $e) {
                 Log::channel('query_log')->error("❌ Error on transaction [$i]: " . $e->getMessage());
             }
         }
 
+        // ✅ Log SQL Queries
+        $queryLog = DB::getQueryLog();
+        Log::channel('query_log')->info("🔍 SQL Queries: " . json_encode($queryLog));
+
         return redirect()->back()->with('success', 'Bank statement uploaded and parsed successfully.');
+    }
+
+    private function parseAmount($value)
+    {
+        if (is_null($value)) return null;
+        $value = str_replace(',', '', trim($value));
+        return is_numeric($value) ? (float) $value : null;
+    }
+
+
+    public function index()
+    {
+        $statements = Statement::latest()->get();
+        return view('statements.index', compact('statements'));
     }
 }

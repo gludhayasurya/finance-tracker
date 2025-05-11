@@ -101,6 +101,6 @@
         }, 1000);
 
         // Repeat every 10 seconds
-        setInterval(showPopup, 60000);
+        //setInterval(showPopup, 60000);
     };
 </script>

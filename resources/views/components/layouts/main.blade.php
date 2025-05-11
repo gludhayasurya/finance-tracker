@@ -1,4 +1,3 @@
-{{-- resources/views/layouts/adminlte.blade.php --}}
 @include('components.wave-popup')
 @include('partials.datatables')
 

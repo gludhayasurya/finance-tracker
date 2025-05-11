@@ -1,16 +1,12 @@
 
 <x-layouts.main :title="'Banks'" :contentHeader="'Manage Banks'">
 
-
-<!-- Add Bank Button -->
 <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#addBankModal">
     Add Bank
 </button>
 
 <div id="notification">
 
-
-<!-- Banks Table -->
 <table id="mydataTable" class="table table-bordered table-striped">
     <thead>
         <tr>
