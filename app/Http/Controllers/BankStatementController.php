@@ -3,156 +3,210 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Statement;
-use Smalot\PdfParser\Parser;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Smalot\PdfParser\Parser;
+use Carbon\Carbon;
 
 class BankStatementController extends Controller
 {
-    public function uploadForm()
+    public function uploadForm(Request $request, $bank_id)
     {
-        return view('banks.upload');
+        return view('banks.upload', compact('bank_id'));
     }
 
-    public function parseAndStore(Request $request)
+    public function parseAndStore(Request $request, $bank_id)
     {
         $request->validate([
             'statement' => 'required|mimes:pdf|max:5120',
         ]);
 
-        DB::enableQueryLog(); // ✅ Enable SQL logging
+        $log = Log::channel('query_log');
 
-        $pdfPath = $request->file('statement')->getPathname();
+        // Store uploaded file
+        $path = $request->file('statement')->storeAs('public', 'bank.pdf');
+        $pdfPath = storage_path('app/' . $path);
+        $log->info("PDF uploaded and stored at: $pdfPath");
+
         $parser = new Parser();
         $pdf = $parser->parseFile($pdfPath);
         $text = $pdf->getText();
-
         $lines = explode("\n", $text);
-        $transactions = [];
-        $current = [];
-        $startParsing = false;
+        $log->info("PDF parsed. Total lines: " . count($lines));
 
-        Log::channel('query_log')->info("PDF Upload successful. Line count: " . count($lines));
+        $startProcessing = false;
+        $transactions = [];
+        $currentRow = null;
 
         foreach ($lines as $index => $line) {
             $line = trim($line);
+            $log->info("[$index] Raw Line: \"$line\"");
 
-            if (!$startParsing) {
-                if (stripos($line, 'Statement of Transactions') !== false) {
-                    $startParsing = true;
-                    Log::channel('query_log')->info("Found 'Statement of Transactions' at line $index.");
+            if (!$startProcessing && preg_match('/^DATE\s+MODE\*\*\s+PARTICULARS/i', $line)) {
+                $startProcessing = true;
+                $log->info("Header detected at line $index. Starting to process transactions.");
+                continue;
+            }
+
+            if (!$startProcessing || $line === '') {
+                continue;
+            }
+
+            if (stripos($line, 'TOTAL') !== false) {
+                if ($currentRow) {
+                    $this->parseNumericValues($currentRow, $log);
+                    $transactions[] = $currentRow;
+                    $log->info("Saved transaction: " . json_encode($currentRow));
+                    $currentRow = null;
+                }
+                break;
+            }
+
+            if (preg_match('/Page \d+ of \d+/i', $line) || preg_match('/^DATE\s+MODE\*\*\s+PARTICULARS/i', $line)) {
+                if ($currentRow) {
+                    $this->parseNumericValues($currentRow, $log);
+                    $transactions[] = $currentRow;
+                    $log->info("Saved transaction before page break: " . json_encode($currentRow));
+                    $currentRow = null;
                 }
                 continue;
             }
 
-            if ($line === '') {
+            if (preg_match('/MR\.UDHAYAKUMAR GUNASEELAN/i', $line)) {
                 continue;
             }
 
             if (preg_match('/^\d{2}-\d{2}-\d{4}/', $line)) {
-                if (!empty($current)) {
-                    $transactions[] = $current;
+                if ($currentRow) {
+                    $this->parseNumericValues($currentRow, $log);
+                    $transactions[] = $currentRow;
+                    $log->info("Saved transaction: " . json_encode($currentRow));
                 }
-                $current = ['raw' => $line];
-            } else {
-                $current['raw'] = isset($current['raw']) ? $current['raw'] . ' ' . $line : $line;
-            }
-        }
 
-        if (!empty($current)) {
-            $transactions[] = $current;
-        }
+                $parts = preg_split('/[\s\t]+/', $line);
+                $log->info("[$index] Split parts: " . json_encode($parts));
 
-        Log::channel('query_log')->info("Transactions parsed: " . count($transactions));
-
-        foreach ($transactions as $i => $item) {
-            $rawLine = $item['raw'];
-            Log::channel('query_log')->info("Processing Transaction [$i]: $rawLine");
-        
-            try {
-                // Initialize variables
                 $date = null;
-                $mode = null;
-                $particulars = null;
-                $deposit = null;
-                $withdrawal = null;
-                $balance = null;
-        
-                // Step 1: Extract the date (dd-mm-yyyy) from the start of the line
-                if (preg_match('/^(\d{2}-\d{2}-\d{4})/', $rawLine, $dateMatch)) {
-                    $date = Carbon::createFromFormat('d-m-Y', $dateMatch[1]);
-                    // Remove the date from the raw line
-                    $rawLine = trim(substr($rawLine, strlen($dateMatch[1])));
-                }
-        
-                // Step 2: Extract the amounts (deposit, withdrawal, balance) from the end
-                // Look for the last two or three numeric values (e.g., 92.00 5,661.09)
-                $amounts = [];
-                if (preg_match_all('/\d{1,3}(?:,\d{3})*\.\d{2}/', $rawLine, $amountMatches)) {
-                    $amounts = $amountMatches[0];
-                    // Remove the amounts from the raw line
-                    foreach ($amounts as $amount) {
-                        $rawLine = trim(str_replace($amount, '', $rawLine));
+                if (preg_match('/^\d{2}-\d{2}-\d{4}/', $parts[0], $matches)) {
+                    try {
+                        $date = Carbon::createFromFormat('d-m-Y', $matches[0])->format('Y-m-d');
+                    } catch (\Exception $e) {
+                        $log->error("[$index] Date parsing failed: " . $matches[0]);
                     }
                 }
-        
-                // Assign amounts (from right to left: balance, withdrawal, deposit)
-                if (count($amounts) > 0) {
-                    $balance = $this->parseAmount(array_pop($amounts));
+
+                $mode = null;
+                $particularsStartIndex = 1;
+                if (isset($parts[1]) && !preg_match('/\d{1,3}(?:,\d{3})*\.\d{2}/', $parts[1])) {
+                    $mode = $parts[1];
+                    $particularsStartIndex = 2;
+                    if (isset($parts[2]) && !preg_match('/\d{1,3}(?:,\d{3})*\.\d{2}/', $parts[2])) {
+                        $mode .= ' ' . $parts[2];
+                        $particularsStartIndex = 3;
+                    }
                 }
-                if (count($amounts) > 0) {
-                    $withdrawal = $this->parseAmount(array_pop($amounts));
+
+                $particulars = '';
+                $amounts = [];
+                for ($i = $particularsStartIndex; $i < count($parts); $i++) {
+                    if (preg_match('/\d{1,3}(?:,\d{3})*\.\d{2}/', $parts[$i])) {
+                        $amounts[] = $parts[$i];
+                    } else {
+                        $particulars .= ' ' . $parts[$i];
+                    }
                 }
-                if (count($amounts) > 0) {
-                    $deposit = $this->parseAmount(array_pop($amounts));
-                }
-        
-                // Step 3: Split the remaining part into mode and particulars
-                $remainingFields = preg_split('/\s{2,}/', $rawLine);
-                if (count($remainingFields) >= 2) {
-                    $mode = $remainingFields[0];
-                    $particulars = implode(' ', array_slice($remainingFields, 1));
-                } else {
-                    $particulars = $rawLine;
-                }
-        
-                // Create data for insertion into the database
-                $data = [
-                    'date'        => $date,
-                    'mode'        => $mode,
+                $particulars = trim($particulars);
+
+                $currentRow = [
+                    'date' => $date,
+                    'mode' => $mode,
                     'particulars' => $particulars,
-                    'deposit'     => $deposit,
-                    'withdrawal'  => $withdrawal,
-                    'balance'     => $balance,
+                    'deposit' => null,
+                    'withdrawal' => null,
+                    'balance' => null,
                 ];
-        
-                Statement::create($data);
-                Log::channel('query_log')->info("✅ DB Inserted [$i]: " . json_encode($data));
-            } catch (\Exception $e) {
-                Log::channel('query_log')->error("❌ Error on transaction [$i]: " . $e->getMessage());
+
+                if (!empty($amounts)) {
+                    if (count($amounts) >= 1) {
+                        if (strpos($currentRow['particulars'], 'UPI') !== false || strpos($currentRow['particulars'], 'IMPS') !== false || strpos($currentRow['particulars'], 'ATM') !== false) {
+                            $currentRow['withdrawal'] = floatval(str_replace(',', '', $amounts[0]));
+                        } else {
+                            $currentRow['deposit'] = floatval(str_replace(',', '', $amounts[0]));
+                        }
+                    }
+                    if (count($amounts) >= 2) {
+                        $currentRow['balance'] = floatval(str_replace(',', '', $amounts[1]));
+                    }
+                }
+            } else {
+                if ($currentRow) {
+                    $currentRow['particulars'] .= ' ' . $line;
+                } else {
+                    continue;
+                }
             }
         }
 
-        // ✅ Log SQL Queries
-        $queryLog = DB::getQueryLog();
-        Log::channel('query_log')->info("🔍 SQL Queries: " . json_encode($queryLog));
+        if ($currentRow) {
+            $this->parseNumericValues($currentRow, $log);
+            $transactions[] = $currentRow;
+            $log->info("Saved final transaction: " . json_encode($currentRow));
+        }
 
-        return redirect()->back()->with('success', 'Bank statement uploaded and parsed successfully.');
+        foreach ($transactions as $i => $txn) {
+            $txn['bank_id'] = $bank_id;
+            try {
+                DB::table('statement_transactions')->insert($txn);
+                $log->info("Inserted row $i: " . json_encode($txn));
+            } catch (\Exception $e) {
+                $log->error("Failed to insert row $i: " . $e->getMessage());
+            }
+        }
+
+        return redirect()->route('statements.index')
+            ->with('toast', [
+                'type' => 'success',
+                'message' => 'Bank transactions imported successfully.',
+                'count' => count($transactions),
+            ]);
     }
 
-    private function parseAmount($value)
+    private function parseNumericValues(&$row, $log)
     {
-        if (is_null($value)) return null;
-        $value = str_replace(',', '', trim($value));
-        return is_numeric($value) ? (float) $value : null;
+        $pattern = '/\d{1,3}(?:,\d{3})*\.\d{2}\b/';
+        preg_match_all($pattern, $row['particulars'], $matches);
+
+        $numbers = $matches[0] ?? [];
+
+        if (count($numbers) >= 1) {
+            if (strpos($row['particulars'], 'UPI') !== false || strpos($row['particulars'], 'IMPS') !== false || strpos($row['particulars'], 'ATM') !== false) {
+                $row['withdrawal'] = floatval(str_replace(',', '', $numbers[0]));
+            } else {
+                $row['deposit'] = floatval(str_replace(',', '', $numbers[0]));
+            }
+        }
+        if (count($numbers) >= 2) {
+            $row['balance'] = floatval(str_replace(',', '', $numbers[1]));
+        }
+        if (count($numbers) >= 3) {
+            $row['deposit'] = floatval(str_replace(',', '', $numbers[0]));
+            $row['withdrawal'] = floatval(str_replace(',', '', $numbers[1]));
+            $row['balance'] = floatval(str_replace(',', '', $numbers[2]));
+        }
+
+        $row['particulars'] = preg_replace($pattern, '', $row['particulars']);
+        $row['particulars'] = trim($row['particulars']);
     }
 
 
-    public function index()
+    public function index(Request $request, $bank_id)
     {
-        $statements = Statement::latest()->get();
-        return view('statements.index', compact('statements'));
+        $statements = DB::table('statement_transactions')
+            ->where('bank_id', $bank_id)
+            ->orderBy('date', 'desc')
+            ->get();
+
+        return view('bank.statements.index', compact('statements', 'bank_id'));
     }
 }

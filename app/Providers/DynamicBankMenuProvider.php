@@ -38,18 +38,21 @@ class DynamicBankMenuProvider extends ServiceProvider
                     'icon_color' => $bank->icon_color ?? 'info', // Use dynamic icon_color or fallback
                     'submenu' => [
                         [
-                            'text' => 'Transactions',
+                            'text' => ' Manual Entry Transactions',
                             'url' => route('transactions.index', ['bank_id' => $bank->id]),
                         ],
                         [
-                            'text' => 'Reports',
-                            'url' => '#', // Placeholder for reports URL
+                            'text' => 'Upload Statement',
+                            'url' => route('bank.upload.form', ['bank_id' => $bank->id]),
                         ],
                         [
-                            'text' => 'Statements',
-                            // 'url' => route('statements.index', ['bank_id' => $bank->id]),
-                            'url' => route('statements.index'),
-                        ]
+                            'text' => 'Import Transactions',
+                            'url' => route('bank.parse.store', ['bank_id' => $bank->id]),
+                        ],
+                        [
+                            'text' => 'View Statement',
+                            'url' => route('statements.index', ['bank_id' => $bank->id]),
+                        ],
                     ],
                 ]);
             }

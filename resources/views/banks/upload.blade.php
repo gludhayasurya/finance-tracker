@@ -10,7 +10,8 @@
         </x-adminlte-alert>
     @endif
 
-    <form action="{{ route('bank.parse.store') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('bank.parse.store', ['bank_id' => $selectedBankId]) }}" method="POST" enctype="multipart/form-data">
+
         @csrf
 
         <x-adminlte-input-file name="statement" label="Bank Statement PDF" igroup-size="md" required>
