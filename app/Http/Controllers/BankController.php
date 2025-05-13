@@ -7,11 +7,11 @@ use App\Models\Bank;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 
-
 class BankController extends Controller
 {
     public function index()
     {
+
         $banks = Bank::get();
         return view('banks.index', compact('banks'));
     }

@@ -38,6 +38,7 @@ class Statement extends BaseModel
         $second = $parts->get(2);
         $third = $parts->get(3);
 
-        return trim("$second && $third");
+        return trim($second);
+        // return trim("$second && $third");
     }
 }

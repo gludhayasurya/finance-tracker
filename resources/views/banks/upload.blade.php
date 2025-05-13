@@ -1,4 +1,4 @@
-<x-layouts.main :title="'Upload Bank Statement'" :contentHeader="'Upload Bank Statement PDF'">
+<x-layouts.main :title="'Upload Bank Statement'" :contentHeader="'Upload Bank Statement PDFnnnnndssssd'">
 
     @if ($errors->any())
         <x-adminlte-alert theme="danger" title="Upload Error">
@@ -10,11 +10,12 @@
         </x-adminlte-alert>
     @endif
 
-    <form action="{{ route('bank.parse.store', ['bank_id' => $selectedBankId]) }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('bank.parse.store', ['bank_id' => $bank_id]) }}" method="POST" enctype="multipart/form-data">
+        {{-- CSRF Token --}}
 
         @csrf
 
-        <x-adminlte-input-file name="statement" label="Bank Statement PDF" igroup-size="md" required>
+        <x-adminlte-input-file name="statement" label="Bank Statement PDFfdfd" igroup-size="md" required>
             <x-slot name="prependSlot">
                 <div class="input-group-text bg-primary">
                     <i class="fas fa-file-pdf"></i>

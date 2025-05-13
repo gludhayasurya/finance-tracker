@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+
+use App\Models\Statement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -24,10 +26,9 @@ class BankStatementController extends Controller
 
         $log = Log::channel('query_log');
 
-        // Store uploaded file
-        $path = $request->file('statement')->storeAs('public', 'bank.pdf');
-        $pdfPath = storage_path('app/' . $path);
-        $log->info("PDF uploaded and stored at: $pdfPath");
+        // Assume the file is already in storage/app/public/bank.pdf
+        $pdfPath = storage_path('app/public/bank.pdf');
+        $log->info("Using existing PDF file at: $pdfPath");
 
         $parser = new Parser();
         $pdf = $parser->parseFile($pdfPath);
@@ -164,7 +165,7 @@ class BankStatementController extends Controller
             }
         }
 
-        return redirect()->route('statements.index')
+        return redirect()->route('statements.index', ['bank_id' => $bank_id])
             ->with('toast', [
                 'type' => 'success',
                 'message' => 'Bank transactions imported successfully.',
@@ -202,11 +203,11 @@ class BankStatementController extends Controller
 
     public function index(Request $request, $bank_id)
     {
-        $statements = DB::table('statement_transactions')
-            ->where('bank_id', $bank_id)
+        $statements = Statement::where('bank_id', $bank_id)
             ->orderBy('date', 'desc')
             ->get();
 
-        return view('bank.statements.index', compact('statements', 'bank_id'));
+
+        return view('statements.index', compact('statements', 'bank_id'));
     }
 }

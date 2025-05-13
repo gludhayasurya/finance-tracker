@@ -46,10 +46,6 @@ class DynamicBankMenuProvider extends ServiceProvider
                             'url' => route('bank.upload.form', ['bank_id' => $bank->id]),
                         ],
                         [
-                            'text' => 'Import Transactions',
-                            'url' => route('bank.parse.store', ['bank_id' => $bank->id]),
-                        ],
-                        [
                             'text' => 'View Statement',
                             'url' => route('statements.index', ['bank_id' => $bank->id]),
                         ],
