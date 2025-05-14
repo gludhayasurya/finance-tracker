@@ -1,25 +1,27 @@
+<!-- Sound -->
+<audio id="popup-sound" src="{{ asset('sounds/notific.mp3') }}" preload="auto"></audio>
+
+<!-- Popup Container -->
+<div id="wave-popup" class="hide">
+    <div id="wave-message">Hi there!</div>
+    <img src="{{ asset('images/waving-handd.gif') }}" alt="Wave">
+</div>
+
 <style>
     #wave-popup {
         position: fixed;
         bottom: 20px;
         right: 20px;
-        background: #fff;
-        padding: 10px 15px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.2);
         display: flex;
-        align-items: center;
+        flex-direction: row; /* Place bubble and GIF side by side */
+        align-items: flex-start; /* Align to top */
         gap: 10px;
+        background: transparent;
+        padding: 10px;
         z-index: 9999;
         opacity: 0;
         transform: translateY(100px);
-        animation: none;
         transition: all 0.4s ease-in-out;
-    }
-
-    #wave-popup img {
-        width: 40px;
-        height: 40px;
     }
 
     #wave-popup.show {
@@ -30,6 +32,53 @@
     #wave-popup.hide {
         opacity: 0;
         transform: translateY(100px);
+    }
+
+    #wave-popup img {
+        width: 60px;
+        height: 60px;
+        background: #808080; /* Grey background for GIF */
+        border-radius: 10px; /* Optional: rounded corners for background */
+    }
+
+    #wave-message {
+        position: relative;
+        background: #db781b; /* Green background for bubble */
+        padding: 10px 15px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        font-size: 14px;
+        color: #333;
+        max-width: 220px;
+        text-align: center;
+        font-weight: 500;
+        order: -1; /* Place bubble before GIF */
+        transform: translateY(-10px); /* Slightly higher for "mind" effect */
+    }
+
+    /* Thought bubble tail (pointing right to GIF's head) */
+    #wave-message::before {
+        content: '';
+        position: absolute;
+        top: 20px; /* Adjusted to point to GIF's head */
+        right: -10px; /* Position to right of bubble */
+        width: 10px;
+        height: 10px;
+        background: #db781b; /* Green tail to match bubble */
+        border-radius: 50%;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    #wave-message::after {
+        content: '';
+        position: absolute;
+        top: 24px; /* Slightly below first circle */
+        right: -16px; /* Further right */
+        width: 6px;
+        height: 6px;
+        background: #db781b; /* Green tail to match bubble */
+        border-radius: 50%;
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
     }
 
     @keyframes bounceInUp {
@@ -50,31 +99,13 @@
     }
 </style>
 
-<!-- Sound -->
-<audio id="popup-sound" src="{{ asset('sounds/notific.mp3') }}" preload="auto"></audio>
-
-<!-- Popup -->
-<div id="wave-popup" class="hide">
-    <img src="{{ asset('images/waving-handd.gif') }}" alt="Wave">
-    <span id="wave-message">Hi there!</span>
-</div>
-
 <script>
-    // const messages = [
-    //     "Track your expenses today!",
-    //     "💸 Don't forget to log your spending!",
-    //     "Hi! Budgeting = Freedom 💰",
-    //     "👋 Stay in control of your money!",
-    //     "📊 Review your finance report weekly!"
-    // ];
-
-     const messages = @json(__('messages.finance_motivation'));
+    const messages = @json(__('messages.finance_motivation'));
 
     const popup = document.getElementById('wave-popup');
     const message = document.getElementById('wave-message');
     const sound = document.getElementById('popup-sound');
 
-    // Function to show the popup and play sound
     function showPopup() {
         const randomMessage = messages[Math.floor(Math.random() * messages.length)];
         message.innerText = randomMessage;
@@ -82,7 +113,6 @@
         popup.classList.remove('hide');
         popup.classList.add('show');
 
-        // Play sound (ensure user interaction triggers it)
         try {
             sound.currentTime = 0;
             sound.play();
@@ -93,16 +123,14 @@
         setTimeout(() => {
             popup.classList.remove('show');
             popup.classList.add('hide');
-        }, 4000); // show for 4 seconds
+        }, 8000);
     }
 
     window.onload = () => {
-        // Show popup and play sound after 1 second
         setTimeout(() => {
             showPopup();
         }, 1000);
 
-        // Repeat every 10 seconds
-        setInterval(showPopup, 10000);
+        setInterval(showPopup, 20000);
     };
 </script>
