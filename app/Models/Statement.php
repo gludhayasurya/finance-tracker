@@ -26,6 +26,11 @@ class Statement extends BaseModel
 
     ];
 
+    public function import()
+    {
+        return $this->belongsTo(Import::class);
+    }
+
     public function bank()
     {
         return $this->belongsTo(Bank::class);

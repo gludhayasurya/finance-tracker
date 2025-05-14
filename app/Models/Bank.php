@@ -19,6 +19,15 @@ class Bank extends BaseModel
     {
         return $this->hasMany(Transaction::class);
     }
+    public function imports()
+    {
+        return $this->hasMany(Import::class);
+    }
+    public function statements()
+    {
+        return $this->hasMany(Statement::class);
+    }
+
 
     // public function transformAudit(array $data): array
     // {

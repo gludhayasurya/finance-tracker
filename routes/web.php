@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\ImportController;
+use App\Http\Controllers\ImportsController;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\TestMail;
 
@@ -45,6 +46,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/upload-bank-statement/{bank_id}', [BankStatementController::class, 'uploadForm'])->name('bank.upload.form');
     Route::post('/parse-bank-statement/{bank_id}', [BankStatementController::class, 'parseAndStore'])->name('bank.parse.store');
     Route::get('/bank-statements/{bank_id}', [BankStatementController::class, 'index'])->name('statements.index');
+
+    Route::get('/imports', [ImportsController::class, 'index'])->name('imports.index');
+    Route::get('/view-statements/{bank}/{import}', [ImportsController::class, 'viewStatements'])->name('imports.view.statements');
+
+
+
+
+
+
 
 });
 

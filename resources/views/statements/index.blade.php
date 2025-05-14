@@ -33,15 +33,4 @@
     </table>
 @endif
 
-@push('scripts')
-<script>
-    $(function () {
-        $('#mydataTable').DataTable({
-            responsive: true,
-            autoWidth: false,
-        });
-    });
-</script>
-@endpush
-
 </x-layouts.main>

@@ -60,13 +60,15 @@
 </div>
 
 <script>
-    const messages = [
-        "Track your expenses today!",
-        "💸 Don't forget to log your spending!",
-        "Hi! Budgeting = Freedom 💰",
-        "👋 Stay in control of your money!",
-        "📊 Review your finance report weekly!"
-    ];
+    // const messages = [
+    //     "Track your expenses today!",
+    //     "💸 Don't forget to log your spending!",
+    //     "Hi! Budgeting = Freedom 💰",
+    //     "👋 Stay in control of your money!",
+    //     "📊 Review your finance report weekly!"
+    // ];
+
+     const messages = @json(__('messages.finance_motivation'));
 
     const popup = document.getElementById('wave-popup');
     const message = document.getElementById('wave-message');
@@ -101,6 +103,6 @@
         }, 1000);
 
         // Repeat every 10 seconds
-        //setInterval(showPopup, 60000);
+        setInterval(showPopup, 10000);
     };
 </script>
