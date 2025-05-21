@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-
+use App\Models\Import;
 use App\Models\Statement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -28,25 +28,46 @@ class BankStatementController extends Controller
 
         // Assume the file is already in storage/app/public/bank.pdf
         $pdfPath = storage_path('app/public/bank.pdf');
-        $log->info("Using existing PDF file at: $pdfPath");
+        $filename = $request->file('statement')->getClientOriginalName();
+        $filepath = 'public/bank.pdf'; // Relative path in storage
+        //$log->info("Using existing PDF file at: $pdfPath");
+
+        // // Store the uploaded file
+        // $file = $request->file('statement');
+        // $filename = $file->getClientOriginalName();
+        // $filepath = $file->store('public'); // Stores in storage/app/public
+        // $pdfPath = storage_path('app/' . $filepath);
+        // //$log->info("Using PDF file at: $pdfPath");
+
+        // Create Import record
+        $import = Import::create([
+            'bank_id' => $bank_id,
+            'filename' => $filename,
+            'filepath' => $filepath,
+            'status' => 'pending',
+        ]);
+        //$log->info("Created import record: ID={$import->id}");
 
         $parser = new Parser();
         $pdf = $parser->parseFile($pdfPath);
         $text = $pdf->getText();
         $lines = explode("\n", $text);
-        $log->info("PDF parsed. Total lines: " . count($lines));
+        //$log->info("PDF parsed. Total lines: " . count($lines));
 
         $startProcessing = false;
         $transactions = [];
         $currentRow = null;
+        $totalWithdrawal = 0;
+        $totalDeposit = 0;
+        $finalBalance = 0;
 
         foreach ($lines as $index => $line) {
             $line = trim($line);
-            $log->info("[$index] Raw Line: \"$line\"");
+            //$log->info("[$index] Raw Line: \"$line\"");
 
             if (!$startProcessing && preg_match('/^DATE\s+MODE\*\*\s+PARTICULARS/i', $line)) {
                 $startProcessing = true;
-                $log->info("Header detected at line $index. Starting to process transactions.");
+                //$log->info("Header detected at line $index. Starting to process transactions.");
                 continue;
             }
 
@@ -58,7 +79,12 @@ class BankStatementController extends Controller
                 if ($currentRow) {
                     $this->parseNumericValues($currentRow, $log);
                     $transactions[] = $currentRow;
-                    $log->info("Saved transaction: " . json_encode($currentRow));
+                    //$log->info("Saved transaction: " . json_encode($currentRow));
+                    $totalWithdrawal += $currentRow['withdrawal'] ?? 0;
+                    $totalDeposit += $currentRow['deposit'] ?? 0;
+                    if ($currentRow['balance']) {
+                        $finalBalance = $currentRow['balance'];
+                    }
                     $currentRow = null;
                 }
                 break;
@@ -68,7 +94,12 @@ class BankStatementController extends Controller
                 if ($currentRow) {
                     $this->parseNumericValues($currentRow, $log);
                     $transactions[] = $currentRow;
-                    $log->info("Saved transaction before page break: " . json_encode($currentRow));
+                    //$log->info("Saved transaction before page break: " . json_encode($currentRow));
+                    $totalWithdrawal += $currentRow['withdrawal'] ?? 0;
+                    $totalDeposit += $currentRow['deposit'] ?? 0;
+                    if ($currentRow['balance']) {
+                        $finalBalance = $currentRow['balance'];
+                    }
                     $currentRow = null;
                 }
                 continue;
@@ -82,11 +113,16 @@ class BankStatementController extends Controller
                 if ($currentRow) {
                     $this->parseNumericValues($currentRow, $log);
                     $transactions[] = $currentRow;
-                    $log->info("Saved transaction: " . json_encode($currentRow));
+                    //$log->info("Saved transaction: " . json_encode($currentRow));
+                    $totalWithdrawal += $currentRow['withdrawal'] ?? 0;
+                    $totalDeposit += $currentRow['deposit'] ?? 0;
+                    if ($currentRow['balance']) {
+                        $finalBalance = $currentRow['balance'];
+                    }
                 }
 
                 $parts = preg_split('/[\s\t]+/', $line);
-                $log->info("[$index] Split parts: " . json_encode($parts));
+                //$log->info("[$index] Split parts: " . json_encode($parts));
 
                 $date = null;
                 if (preg_match('/^\d{2}-\d{2}-\d{4}/', $parts[0], $matches)) {
@@ -120,6 +156,8 @@ class BankStatementController extends Controller
                 $particulars = trim($particulars);
 
                 $currentRow = [
+                    'imported_id' => $import->id,
+                    'bank_id' => $bank_id,
                     'date' => $date,
                     'mode' => $mode,
                     'particulars' => $particulars,
@@ -152,17 +190,38 @@ class BankStatementController extends Controller
         if ($currentRow) {
             $this->parseNumericValues($currentRow, $log);
             $transactions[] = $currentRow;
-            $log->info("Saved final transaction: " . json_encode($currentRow));
+            //$log->info("Saved final transaction: " . json_encode($currentRow));
+            $totalWithdrawal += $currentRow['withdrawal'] ?? 0;
+            $totalDeposit += $currentRow['deposit'] ?? 0;
+            if ($currentRow['balance']) {
+                $finalBalance = $currentRow['balance'];
+            }
         }
 
+        // Insert transactions using Eloquent
         foreach ($transactions as $i => $txn) {
-            $txn['bank_id'] = $bank_id;
             try {
-                DB::table('statement_transactions')->insert($txn);
-                $log->info("Inserted row $i: " . json_encode($txn));
+                Statement::create($txn);
+                //$log->info("Inserted transaction $i: " . json_encode($txn));
             } catch (\Exception $e) {
-                $log->error("Failed to insert row $i: " . $e->getMessage());
+                $log->error("Failed to insert transaction $i: " . $e->getMessage());
             }
+        }
+
+        // Update Import record with totals
+        try {
+            $import->update([
+                'total_withdrawal' => $totalWithdrawal,
+                'total_deposit' => $totalDeposit,
+                'total_balance' => $finalBalance,
+                'status' => 'completed',
+            ]);
+
+
+
+            //$log->info("Updated import ID={$import->id}: total_withdrawal=$totalWithdrawal, total_deposit=$totalDeposit, total_balance=$finalBalance");
+        } catch (\Exception $e) {
+            $log->error("Failed to update import ID={$import->id}: " . $e->getMessage());
         }
 
         return redirect()->route('statements.index', ['bank_id' => $bank_id])
@@ -210,4 +269,25 @@ class BankStatementController extends Controller
 
         return view('statements.index', compact('statements', 'bank_id'));
     }
+
+    public function update(Request $request, $id)
+    {
+        $data = $request->all();
+
+        // If "extracted_particular" is present, map it to "particulars"
+        if (isset($data['extracted_particular'])) {
+            $data['particulars'] = $data['extracted_particular'];
+            unset($data['extracted_particular']);
+        }
+
+        $txn = Statement::findOrFail($id);
+        // dd($txn);
+        $txn->update($data);
+
+        return redirect()->back()->with('toast', [
+            'type' => 'success',
+            'message' => 'Transaction updated successfully.'
+        ]);
+    }
+
 }

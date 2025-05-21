@@ -46,6 +46,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/upload-bank-statement/{bank_id}', [BankStatementController::class, 'uploadForm'])->name('bank.upload.form');
     Route::post('/parse-bank-statement/{bank_id}', [BankStatementController::class, 'parseAndStore'])->name('bank.parse.store');
     Route::get('/bank-statements/{bank_id}', [BankStatementController::class, 'index'])->name('statements.index');
+    Route::put('/bank-statements/{id}', [BankStatementController::class, 'update'])->name('statements.update');
+
 
     Route::get('/imports', [ImportsController::class, 'index'])->name('imports.index');
     Route::get('/view-statements/{bank}/{import}', [ImportsController::class, 'viewStatements'])->name('imports.view.statements');

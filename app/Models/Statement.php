@@ -43,6 +43,10 @@ class Statement extends BaseModel
         $second = $parts->get(2);
         $third = $parts->get(3);
 
+        if (is_null($second) && is_null($third)) {
+            return $this->particulars;
+        }
+
         return trim($second);
         // return trim("$second && $third");
     }
