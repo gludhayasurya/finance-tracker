@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 
 class BankController extends Controller
 {
+//test
     public function index()
     {
 
