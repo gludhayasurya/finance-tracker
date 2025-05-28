@@ -336,6 +336,8 @@ return [
         // ],
         ['text' => 'Dashboard', 'route' => 'dashboard', 'icon' => 'fas fa-chart-line'],
         ['text' => 'Reminders', 'route' => 'reminders.index', 'icon' => 'fas fa-solid fa-calendar-check'],
+        ['text' => 'Imports', 'route' => 'imports.index', 'icon' => 'fas fa-file-import'],
+
         ['text' => 'Banks', 'route' => 'banks.index', 'icon' => 'fas fa-solid fa-piggy-bank', 'icon_color' => 'pink'],
         // [
         //     'text' => 'HDFC Bank',

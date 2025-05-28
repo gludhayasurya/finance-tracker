@@ -47,7 +47,7 @@ class Statement extends BaseModel
             return $this->particulars;
         }
 
-        return trim($second);
+        return trim($this->particulars);
         // return trim("$second && $third");
     }
 }
