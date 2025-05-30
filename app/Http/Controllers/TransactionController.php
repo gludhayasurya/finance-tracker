@@ -12,15 +12,42 @@ class TransactionController extends Controller
      * Display a listing of the resource.
      */
     public function index($bankId)
-    {
-        $bank = Bank::findOrFail($bankId);
+{
+    $bank = Bank::findOrFail($bankId);
 
-        $transactions = Transaction::where('bank_id', $bankId)
-            ->latest()
-            ->get();
+    // Fetch all transactions for this bank
+    $transactions = Transaction::where('bank_id', $bankId)
+        ->latest()
+        ->get();
 
-        return view('transactions.index', compact('transactions', 'bank'));
-    }
+    // Optimized totals directly from DB
+    $totals = Transaction::selectRaw("
+            SUM(CASE WHEN transaction_type = 'credit' THEN amount ELSE 0 END) as total_income,
+            SUM(CASE WHEN transaction_type = 'debit' THEN amount ELSE 0 END) as total_expense
+        ")
+        ->where('bank_id', $bankId)
+        ->first();
+
+    $totalIncome = $totals->total_income ?? 0;
+    $totalExpense = $totals->total_expense ?? 0;
+    $netAmount = $totalIncome - $totalExpense;
+
+    $categories = [
+        'salary', 'food', 'transport', 'healthcare',
+        'utilities', 'shopping', 'housing', 'entertainment',
+        'education', 'others'
+    ];
+
+    return view('transactions.index', compact(
+        'transactions',
+        'bank',
+        'totalIncome',
+        'totalExpense',
+        'netAmount',
+        'categories'
+    ));
+}
+
 
     /**
      * Show the form for creating a new resource.

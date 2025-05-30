@@ -2,100 +2,242 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Transaction;
+use App\Models\Bank;
+use App\Models\Statement;
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $selectedYear = $request->input('year', now()->year);
-        $selectedMonth = $request->input('month', null); // null = all months
-
-        $availableYears = range(now()->year, now()->year - 5);
-        $availableMonths = [
-            '01' => 'January', '02' => 'February', '03' => 'March',
-            '04' => 'April',   '05' => 'May',      '06' => 'June',
-            '07' => 'July',    '08' => 'August',   '09' => 'September',
-            '10' => 'October', '11' => 'November', '12' => 'December',
+        $data = [
+            'totalBalance' => $this->getTotalBalance(),
+            'totalIncome' => $this->getTotalIncome(),
+            'totalExpenses' => $this->getTotalExpenses(),
+            'activeAccounts' => $this->getActiveAccounts(),
+            'monthlyTrend' => $this->getMonthlyTrend(),
+            'expensesByCategory' => $this->getExpensesByCategory(),
+            'recentTransactions' => $this->getRecentTransactions(),
+            'topExpenseCategories' => $this->getTopExpenseCategories(),
+            'incomeVsExpense' => $this->getIncomeVsExpenseChart(),
+            'accountBalances' => $this->getAccountBalances(),
+            'cashFlow' => $this->getCashFlow(),
         ];
 
-        // Dummy data – replace with actual DB query based on filters
-        $monthlyIncomes = [10000, 12000, 9000, 14000, 11000, 13000];
-        $monthlyExpenses = [8000, 7000, 9500, 9000, 8500, 10000];
-        $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-
-        if ($selectedMonth) {
-            // Simulate filtering for one month (for demo only)
-            $monthIndex = intval($selectedMonth) - 1;
-            $monthlyIncomes = [$monthlyIncomes[$monthIndex]];
-            $monthlyExpenses = [$monthlyExpenses[$monthIndex]];
-            $months = [$months[$monthIndex]];
-        }
-
-        return view('dashboard', [
-            'totalBalance' => 30000,
-            'totalIncome' => array_sum($monthlyIncomes),
-            'totalExpenses' => array_sum($monthlyExpenses),
-            'months' => $months,
-            'monthlyIncomes' => $monthlyIncomes,
-            'monthlyExpenses' => $monthlyExpenses,
-            'availableYears' => $availableYears,
-            'availableMonths' => $availableMonths,
-            'selectedYear' => $selectedYear,
-            'selectedMonth' => $selectedMonth,
-        ]);
+        return view('dashboard', compact('data'));
     }
 
+    private function getTotalBalance()
+    {
+        return Bank::sum('current_balance');
+    }
 
-    // public function index()
-    // {
-    //     $transactions = Transaction::all();
+    private function getTotalIncome()
+    {
+        return Statement::whereMonth('date', Carbon::now()->month)
+            ->whereYear('date', Carbon::now()->year)
+            ->where('deposit', '>', 0)
+            ->sum('deposit');
+    }
 
-    //     $totalIncome = $transactions->where('type', 'income')->sum('amount');
-    //     $totalExpenses = $transactions->where('type', 'expense')->sum('amount');
-    //     $totalBalance = $totalIncome - $totalExpenses;
+    private function getTotalExpenses()
+    {
+        return Statement::whereMonth('date', Carbon::now()->month)
+            ->whereYear('date', Carbon::now()->year)
+            ->where('withdrawal', '>', 0)
+            ->sum('withdrawal');
+    }
 
-    //     $recentTransactions = Transaction::latest()->take(5)->get();
+    private function getActiveAccounts()
+    {
+        return Bank::count();
+    }
 
-    //     // Monthly Labels (last 6 months)
-    //     $months = collect(Carbon::now()->subMonths(5)->monthsUntil(Carbon::now()))
-    //         ->map(fn($d) => $d->format('M Y'));
+    private function getMonthlyTrend()
+    {
+        $months = [];
+        $income = [];
+        $expenses = [];
 
-    //     $chartIncome = $months->map(function ($label) {
-    //         return Transaction::where('type', 'income')
-    //             ->whereMonth('date', Carbon::parse($label)->month)
-    //             ->whereYear('date', Carbon::parse($label)->year)
-    //             ->sum('amount');
-    //     });
+        for ($i = 11; $i >= 0; $i--) {
+            $date = Carbon::now()->subMonths($i);
+            $monthName = $date->format('M Y');
 
-    //     $chartExpenses = $months->map(function ($label) {
-    //         return Transaction::where('type', 'expense')
-    //             ->whereMonth('date', Carbon::parse($label)->month)
-    //             ->whereYear('date', Carbon::parse($label)->year)
-    //             ->sum('amount');
-    //     });
+            $monthIncome = Statement::whereMonth('date', $date->month)
+                ->whereYear('date', $date->year)
+                ->where('deposit', '>', 0)
+                ->sum('deposit');
 
-    //     // Category Breakdown (assume titles contain category name)
-    //     $categories = ['Food', 'Rent', 'Utilities', 'Travel', 'Other'];
-    //     $categoryData = collect($categories)->map(fn($cat) =>
-    //         Transaction::where('type', 'expense')
-    //             ->where('title', 'like', "%$cat%")
-    //             ->sum('amount')
-    //     );
+            $monthExpenses = Statement::whereMonth('date', $date->month)
+                ->whereYear('date', $date->year)
+                ->where('withdrawal', '>', 0)
+                ->sum('withdrawal');
 
-    //     return view('dashboard', [
-    //         'totalIncome' => $totalIncome,
-    //         'totalExpenses' => $totalExpenses,
-    //         'totalBalance' => $totalBalance,
-    //         'recentTransactions' => $recentTransactions,
-    //         'chartLabels' => $months,
-    //         'chartIncome' => $chartIncome,
-    //         'chartExpenses' => $chartExpenses,
-    //         'categoryLabels' => $categories,
-    //         'categoryData' => $categoryData
-    //     ]);
-    // }
+            $months[] = $monthName;
+            $income[] = $monthIncome;
+            $expenses[] = $monthExpenses;
+        }
+
+        return [
+            'months' => $months,
+            'income' => $income,
+            'expenses' => $expenses
+        ];
+    }
+
+    private function getExpensesByCategory()
+    {
+        // Fixed version using subquery approach
+        $categories = DB::table(
+            DB::raw('(SELECT
+                withdrawal,
+                CASE
+                    WHEN LOWER(particulars) LIKE "%food%" OR LOWER(particulars) LIKE "%restaurant%" OR LOWER(particulars) LIKE "%grocery%" THEN "Food & Dining"
+                    WHEN LOWER(particulars) LIKE "%fuel%" OR LOWER(particulars) LIKE "%petrol%" OR LOWER(particulars) LIKE "%transport%" THEN "Transportation"
+                    WHEN LOWER(particulars) LIKE "%shopping%" OR LOWER(particulars) LIKE "%amazon%" OR LOWER(particulars) LIKE "%flipkart%" THEN "Shopping"
+                    WHEN LOWER(particulars) LIKE "%medical%" OR LOWER(particulars) LIKE "%hospital%" OR LOWER(particulars) LIKE "%pharmacy%" THEN "Healthcare"
+                    WHEN LOWER(particulars) LIKE "%electricity%" OR LOWER(particulars) LIKE "%water%" OR LOWER(particulars) LIKE "%gas%" THEN "Utilities"
+                    ELSE "Others"
+                END as category
+                FROM statement_transactions
+                WHERE withdrawal > 0
+                    AND MONTH(date) = ' . Carbon::now()->month . '
+                    AND YEAR(date) = ' . Carbon::now()->year . '
+            ) as categorized_transactions')
+        )
+        ->select('category', DB::raw('SUM(withdrawal) as amount'))
+        ->groupBy('category')
+        ->orderBy('amount', 'desc')
+        ->get();
+
+        return $categories;
+    }
+
+    // Alternative cleaner approach using Eloquent collection methods
+    private function getExpensesByCategoryAlternative()
+    {
+        $transactions = Statement::where('withdrawal', '>', 0)
+            ->whereMonth('date', Carbon::now()->month)
+            ->whereYear('date', Carbon::now()->year)
+            ->get();
+
+        return $transactions->groupBy(function ($transaction) {
+            $particulars = strtolower($transaction->particulars);
+
+            if (str_contains($particulars, 'food') ||
+                str_contains($particulars, 'restaurant') ||
+                str_contains($particulars, 'grocery')) {
+                return 'Food & Dining';
+            }
+
+            if (str_contains($particulars, 'fuel') ||
+                str_contains($particulars, 'petrol') ||
+                str_contains($particulars, 'transport')) {
+                return 'Transportation';
+            }
+
+            if (str_contains($particulars, 'shopping') ||
+                str_contains($particulars, 'amazon') ||
+                str_contains($particulars, 'flipkart')) {
+                return 'Shopping';
+            }
+
+            if (str_contains($particulars, 'medical') ||
+                str_contains($particulars, 'hospital') ||
+                str_contains($particulars, 'pharmacy')) {
+                return 'Healthcare';
+            }
+
+            if (str_contains($particulars, 'electricity') ||
+                str_contains($particulars, 'water') ||
+                str_contains($particulars, 'gas')) {
+                return 'Utilities';
+            }
+
+            return 'Others';
+        })->map(function ($group, $category) {
+            return (object) [
+                'category' => $category,
+                'amount' => $group->sum('withdrawal')
+            ];
+        })->sortByDesc('amount')->values();
+    }
+
+    private function getRecentTransactions()
+    {
+        return Statement::with('bank')
+            ->orderBy('date', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+    }
+
+    private function getTopExpenseCategories()
+    {
+        return $this->getExpensesByCategory()->take(5);
+    }
+
+    private function getIncomeVsExpenseChart()
+    {
+        $last7Days = [];
+        $incomeData = [];
+        $expenseData = [];
+
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::now()->subDays($i);
+            $dayName = $date->format('M d');
+
+            $dayIncome = Statement::whereDate('date', $date)
+                ->where('deposit', '>', 0)
+                ->sum('deposit');
+
+            $dayExpenses = Statement::whereDate('date', $date)
+                ->where('withdrawal', '>', 0)
+                ->sum('withdrawal');
+
+            $last7Days[] = $dayName;
+            $incomeData[] = $dayIncome;
+            $expenseData[] = $dayExpenses;
+        }
+
+        return [
+            'days' => $last7Days,
+            'income' => $incomeData,
+            'expenses' => $expenseData
+        ];
+    }
+
+    private function getAccountBalances()
+    {
+        return Bank::select('name', 'current_balance', 'fa_icon', 'icon_color')
+            ->orderBy('current_balance', 'desc')
+            ->get();
+    }
+
+    private function getCashFlow()
+    {
+        $currentMonth = Statement::whereMonth('date', Carbon::now()->month)
+            ->whereYear('date', Carbon::now()->year);
+
+        $income = $currentMonth->where('deposit', '>', 0)->sum('deposit');
+        $expenses = $currentMonth->where('withdrawal', '>', 0)->sum('withdrawal');
+        $netCashFlow = $income - $expenses;
+
+        $previousMonth = Statement::whereMonth('date', Carbon::now()->subMonth()->month)
+            ->whereYear('date', Carbon::now()->subMonth()->year);
+
+        $prevIncome = $previousMonth->where('deposit', '>', 0)->sum('deposit');
+        $prevExpenses = $previousMonth->where('withdrawal', '>', 0)->sum('withdrawal');
+        $prevNetCashFlow = $prevIncome - $prevExpenses;
+
+        $changePercent = $prevNetCashFlow != 0 ? (($netCashFlow - $prevNetCashFlow) / abs($prevNetCashFlow)) * 100 : 0;
+
+        return [
+            'current' => $netCashFlow,
+            'previous' => $prevNetCashFlow,
+            'change_percent' => round($changePercent, 2)
+        ];
+    }
 }

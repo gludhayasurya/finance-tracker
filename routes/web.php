@@ -25,6 +25,12 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+
+// Additional routes you might want to add:
+Route::get('/dashboard/transactions', [DashboardController::class, 'transactions'])->name('dashboard.transactions');
+Route::get('/dashboard/analytics', [DashboardController::class, 'analytics'])->name('dashboard.analytics');
+Route::get('/dashboard/export', [DashboardController::class, 'export'])->name('dashboard.export');
+
     // Bank routes
     Route::get('/banks', [BankController::class, 'index'])->name('banks.index');
     Route::get('/banks/create', [BankController::class, 'create'])->name('banks.create');
@@ -54,6 +60,12 @@ Route::middleware(['auth'])->group(function () {
 
 
 
+Route::get('/budgets',[BankStatementController::class, 'budgets'])->name('budgets.index');
+    Route::get('/budgets/create', [BankStatementController::class, 'createBudget'])->name('budgets.create');
+    Route::post('/budgets', [BankStatementController::class, 'storeBudget'])->name('budgets.store');
+    Route::get('/budgets/{budget}/edit', [BankStatementController::class, 'editBudget'])->name('budgets.edit');
+    Route::put('/budgets/{budget}', [BankStatementController::class, 'updateBudget'])->name('budgets.update');
+    Route::delete('/budgets/{budget}', [BankStatementController::class, 'destroyBudget'])->name('budgets.destroy');
 
 
 

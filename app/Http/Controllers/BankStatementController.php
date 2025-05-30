@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Smalot\PdfParser\Parser;
 use Carbon\Carbon;
+use App\Models\Bank;
+
 
 class BankStatementController extends Controller
 {
@@ -368,8 +370,9 @@ class BankStatementController extends Controller
             ->orderBy('date', 'desc')
             ->get();
 
+$bank = Bank::findOrFail($bank_id);
 
-        return view('statements.index', compact('statements', 'bank_id'));
+        return view('statements.index', compact('statements', 'bank_id', 'bank'));
     }
 
     public function update(Request $request, $id)
@@ -390,6 +393,18 @@ class BankStatementController extends Controller
             'type' => 'success',
             'message' => 'Transaction updated successfully.'
         ]);
+    }
+
+public function budgets(Request $request)
+    {
+        // Fetch budgets and related data
+        $budgets = DB::table('budgets')
+            ->get();
+
+$categories = DB::table('categories')
+            ->get();
+
+        return view('budgets.index', compact('budgets', 'categories'));
     }
 
 }

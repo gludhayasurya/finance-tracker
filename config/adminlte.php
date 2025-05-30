@@ -337,6 +337,24 @@ return [
         ['text' => 'Dashboard', 'route' => 'dashboard', 'icon' => 'fas fa-chart-line'],
         ['text' => 'Reminders', 'route' => 'reminders.index', 'icon' => 'fas fa-solid fa-calendar-check'],
         ['text' => 'Imports', 'route' => 'imports.index', 'icon' => 'fas fa-file-import'],
+// [
+//             'text' => 'Categories',
+//             'route' => 'banks.categories',
+//             'icon' => 'fas fa-tags',
+//             'icon_color' => 'cyan',
+//         ],
+        [
+            'text' => 'Budgets',
+            'route' => 'budgets.index',
+            'icon' => 'fas fa-wallet',
+            'icon_color' => 'green',
+        ],
+        // [
+        //     'text' => 'Reports',
+        //     'route' => 'reports.index',
+        //     'icon' => 'fas fa-chart-bar',
+        //     'icon_color' => 'purple',
+        // ],
 
         ['text' => 'Banks', 'route' => 'banks.index', 'icon' => 'fas fa-solid fa-piggy-bank', 'icon_color' => 'pink'],
         // [
