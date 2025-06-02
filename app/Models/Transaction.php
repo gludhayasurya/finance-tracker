@@ -14,16 +14,24 @@ class Transaction extends BaseModel
     protected $table = 'daily_manual_transactions';
     protected $appends = ['formatted_amount', 'transaction_type_label', 'is_income', 'date_for_ui'];
 
+
     protected $fillable = [
         'title',
         'amount',
-        'type',
-        'date',
-        'bank_id',
-        'category',
-        'subcategory',
-        'description',
-        'transaction_type',
+        'deposit',
+        'withdrawal',
+        'balance',
+        'type', // credit or debit
+        'mode', // cash, bank transfer, etc.
+        'particulars', // details of the transaction
+        'bank_id', // foreign key to Bank model
+        'imported_id', // ID from imported data if applicable
+        'imported_at', // timestamp when imported
+        'category', // auto-detected category
+        'subcategory', // optional subcategory
+        'description', // additional description
+        'transaction_type', // manual or imported
+        'date', // date of the transaction
     ];
 
     protected $casts = [

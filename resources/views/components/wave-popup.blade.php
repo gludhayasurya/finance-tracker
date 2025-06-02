@@ -131,6 +131,6 @@
             showPopup();
         }, 1000);
 
-        setInterval(showPopup, 20000);
+        // setInterval(showPopup, 20000);
     };
 </script>

@@ -35,7 +35,7 @@ class BankStatementController extends Controller
         // $pdfPath = storage_path('app/' . $filepath);
         // $log->info("Using PDF file at: $pdfPath");
 
-         $pdfPath = storage_path('app/public/i_bank.pdf');
+         $pdfPath = storage_path('app/public/may_indian.pdf');
         $filename = $request->file('statement')->getClientOriginalName();
         $filepath = 'public/bank.pdf'; // Relative path in storage
 
@@ -272,6 +272,12 @@ class BankStatementController extends Controller
                 'total_balance' => $finalBalance,
                 'status' => 'completed',
             ]);
+
+           //update bank current balance
+            $bank = Bank::findOrFail($bank_id);
+            $bank->current_balance = $finalBalance;
+            $bank->save();
+
             $log->info("Updated import ID={$import->id}: total_withdrawal=$totalWithdrawal, total_deposit=$totalDeposit, total_balance=$finalBalance");
         } catch (\Exception $e) {
             $log->error("Failed to update import ID={$import->id}: " . $e->getMessage());
@@ -367,10 +373,15 @@ class BankStatementController extends Controller
     public function index(Request $request, $bank_id)
     {
         $statements = Statement::where('bank_id', $bank_id)
-            ->orderBy('date', 'desc')
             ->get();
 
-$bank = Bank::findOrFail($bank_id);
+        $bank = Bank::findOrFail($bank_id);
+
+        // dd($bank);
+
+        // $bank_id = (int) $bank_id; // Ensure bank_id is an integer
+
+        // // dd(gettype(($bank_id)));
 
         return view('statements.index', compact('statements', 'bank_id', 'bank'));
     }

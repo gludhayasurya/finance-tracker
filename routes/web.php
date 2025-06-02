@@ -31,6 +31,11 @@ Route::get('/dashboard/transactions', [DashboardController::class, 'transactions
 Route::get('/dashboard/analytics', [DashboardController::class, 'analytics'])->name('dashboard.analytics');
 Route::get('/dashboard/export', [DashboardController::class, 'export'])->name('dashboard.export');
 
+
+Route::get('/dashboard/stats', [DashboardController::class, 'getSummaryStats']);
+Route::get('/dashboard/trends', [DashboardController::class, 'getTransactionTrends']);
+Route::get('/dashboard/export', [DashboardController::class, 'exportData']);
+
     // Bank routes
     Route::get('/banks', [BankController::class, 'index'])->name('banks.index');
     Route::get('/banks/create', [BankController::class, 'create'])->name('banks.create');

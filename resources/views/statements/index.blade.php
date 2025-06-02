@@ -18,7 +18,7 @@
         <tbody>
             @foreach($statements as $txn)
                 <tr>
-                    <td>{{ $txn->date }}</td>
+                    <td>{{ $txn->date->format('d-m-Y') }}</td>
                     <td>{{ $txn->mode }}</td>
                     <td>{{ $txn->extracted_particular }}</td>
                     <td>{{ number_format($txn->deposit, 2) }}</td>
