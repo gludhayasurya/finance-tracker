@@ -7,6 +7,7 @@ use Illuminate\Support\ServiceProvider;
 use JeroenNoten\LaravelAdminLte\Events\BuildingMenu;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,6 +24,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+
+
+        if (app()->environment('production')) {
+                URL::forceScheme('https');
+            }
+
         // View::composer('*', function ($view) {
         //     $view->with('sidebarBanks', Bank::all());
         // });
